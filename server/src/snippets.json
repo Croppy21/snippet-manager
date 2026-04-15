@@ -1,1 +1,20 @@
-[]
+[
+  {
+    "id": 1,
+    "title": "Console Log",
+    "language": "JavaScript",
+    "code": "console.log('Hello World');"
+  },
+  {
+    "id": 2,
+    "title": "Hello World in Python",
+    "language": "Python",
+    "code": "print('Hello World')"
+  },
+  {
+    "id": 3,
+    "title": "Basic HTML Template",
+    "language": "HTML",
+    "code": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Document</title>\n</head>\n<body>\n    \n</body>\n</html>"
+  }
+]
