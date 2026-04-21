@@ -1,64 +1,35 @@
 const express = require("express");
-const cors = require("cors");
 const fs = require("fs");
+const cors = require("cors");
 const path = require("path");
 
 const app = express();
+const PORT = 5000;
 
 app.use(cors());
 app.use(express.json());
 
-// =====================
-// FILE PATH (SAFE)
-// =====================
-const FILE = path.join(__dirname, "snippets.json");
+const DATA_PATH = path.join(__dirname, "snippets.json");
 
-// =====================
-// ENSURE FILE EXISTS
-// =====================
-if (!fs.existsSync(FILE)) {
-  fs.writeFileSync(FILE, "[]");
-}
-
-// =====================
-// HELPERS
-// =====================
-const readData = () => {
-  try {
-    const data = fs.readFileSync(FILE, "utf-8");
-    return JSON.parse(data);
-  } catch (err) {
-    console.error("Error reading file:", err);
-    return [];
-  }
-};
-
-const writeData = (data) => {
-  fs.writeFileSync(FILE, JSON.stringify(data, null, 2));
-};
-
-// =====================
-// ROUTES
-// =====================
+const readData = () => JSON.parse(fs.readFileSync(DATA_PATH));
+const writeData = (data) =>
+  fs.writeFileSync(DATA_PATH, JSON.stringify(data, null, 2));
 
 app.get("/", (req, res) => {
-  res.send("Snippet API is running 🚀");
+  res.send("API running");
 });
 
-// READ all
 app.get("/snippets", (req, res) => {
   res.json(readData());
 });
 
-// CREATE
 app.post("/snippets", (req, res) => {
   const data = readData();
 
   const newSnippet = {
     id: Date.now(),
-    title: req.body.title,
-    code: req.body.code,
-    language: req.body.language,
+    ...req.body,
+    tags: req.body.tags || []
   };
 
   data.push(newSnippet);
@@ -67,42 +38,28 @@ app.post("/snippets", (req, res) => {
   res.json(newSnippet);
 });
 
-// DELETE
-app.delete("/snippets/:id", (req, res) => {
-  const id = Number(req.params.id);
-  let data = readData();
-
-  data = data.filter((snippet) => snippet.id !== id);
-
-  writeData(data);
-
-  res.json({ success: true });
-});
-
-// UPDATE
 app.put("/snippets/:id", (req, res) => {
-  const id = Number(req.params.id);
   let data = readData();
+  const id = Number(req.params.id);
 
-  data = data.map((snippet) =>
-    snippet.id === id
-      ? {
-          ...snippet,
-          title: req.body.title,
-          code: req.body.code,
-          language: req.body.language,
-        }
-      : snippet
+  data = data.map((s) =>
+    s.id === id ? { ...s, ...req.body } : s
   );
 
   writeData(data);
-
-  res.json({ success: true });
+  res.json({ ok: true });
 });
 
-// =====================
-// START SERVER
-// =====================
-app.listen(3000, () => {
-  console.log("Server running on http://localhost:3000");
+app.delete("/snippets/:id", (req, res) => {
+  let data = readData();
+  const id = Number(req.params.id);
+
+  data = data.filter((s) => s.id !== id);
+
+  writeData(data);
+  res.json({ ok: true });
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
 });
