@@ -3,306 +3,253 @@
   --text-h: #08060d;
   --bg: #fff;
   --border: #e5e4e7;
-  --code-bg: #f4f3ec;
+  --code-bg: #0b0f19;
   --accent: #aa3bff;
   --accent-bg: rgba(170, 59, 255, 0.1);
   --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px,
-    rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+  --card: #f8f8fb;
+  --shadow: rgba(0, 0, 0, 0.08) 0 10px 30px;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
-
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color: var(--text);
-  background: var(--bg);
-}
-
-/* =========================
-   DARK MODE
-========================= */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-  }
+  font: 16px system-ui, sans-serif;
 }
 
 body {
   margin: 0;
+  background: var(--bg);
+  color: var(--text);
 }
 
 /* =========================
-   ROOT FIX (FULL WIDTH)
+   APP LAYOUT FIX (FULL WIDTH)
 ========================= */
-#root {
-  width: 100%;
-  min-height: 100vh;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-}
 
-/* =========================
-   APP WRAPPER
-========================= */
 .app {
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
 }
 
-/* =========================
-   TOP BAR
-========================= */
+/* TOP BAR */
 .topbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 20px;
+  padding: 20px 30px;
   border-bottom: 1px solid var(--border);
+  background-color: #0f172a;
+  color: #f8fafc;
 }
 
 .search {
-  padding: 8px 10px;
-  border-radius: 6px;
+  padding: 8px 12px;
+  border-radius: 8px;
   border: 1px solid var(--border);
-  background: var(--code-bg);
-  color: var(--text-h);
-  width: 240px;
+  width: 220px;
 }
 
-/* =========================
-   MAIN LAYOUT (FIXED DASHBOARD)
-========================= */
+/* LAYOUT */
 .layout {
   display: flex;
-  flex: 1;
-  min-height: calc(100vh - 70px);
+  align-items: flex-start;
 }
 
-/* =========================
-   SIDEBAR (FIXED)
-========================= */
+/* SIDEBAR FIX (NO MORE CLAUSTROPHOBIC LOOK) */
 .sidebar {
-  width: 260px;
-  min-width: 260px;
-  padding: 16px;
+  width: 240px;
+  min-height: calc(100vh - 70px);
   border-right: 1px solid var(--border);
-  background: var(--social-bg);
-
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  padding: 16px;
+  background: #fafafa;
 }
 
-/* buttons in sidebar */
-.sidebar h2 {
-  font-size: 14px;
-  margin: 10px 0 5px;
-  color: var(--text-h);
-}
-
-/* =========================
-   CONTENT AREA
-========================= */
+/* CONTENT */
 .content {
   flex: 1;
   padding: 20px;
 }
 
-/* =========================
-   GRID
-========================= */
+/* GRID */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 16px;
 }
 
-/* =========================
-   CARD
-========================= */
+/* CARD */
 .card {
-  background: var(--code-bg);
+  background: var(--card);
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 14px;
   box-shadow: var(--shadow);
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
 }
 
+/* META */
 .meta {
   font-size: 12px;
   opacity: 0.7;
   margin-bottom: 6px;
 }
 
+/* DESCRIPTION */
 .desc {
   font-size: 13px;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 /* =========================
-   CODE BLOCK
+   CODE BLOCK FIX (IMPORTANT)
 ========================= */
+
 pre {
-  background: #0f172a;
-  color: white;
+  margin: 0;
   padding: 10px;
   border-radius: 8px;
+  background: var(--code-bg);
   overflow-x: auto;
-  font-size: 12px;
+}
+
+/* THIS IS WHAT FIXES HIGHLIGHT.JS VISIBILITY */
+pre code {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: #e6e6e6 !important;
+  display: block;
+  white-space: pre;
 }
 
 /* =========================
-   TAGS FIX (IMPORTANT)
+   TAGS FIX (SPACING ISSUE)
 ========================= */
+
 .tags {
-  margin-top: 10px;
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+  margin-top: 10px;
 }
 
 .tag {
+  font-size: 11px;
   padding: 3px 8px;
+  border-radius: 999px;
   background: var(--accent-bg);
-  color: var(--text-h);
-  border-radius: 6px;
-  font-size: 12px;
-}
-
-/* =========================
-   CATEGORY BUTTONS
-========================= */
-.catBtn {
-  padding: 8px 10px;
-  border: none;
-  border-radius: 6px;
-  background: var(--social-bg);
-  color: var(--text-h);
-  cursor: pointer;
-  text-align: left;
-  transition: 0.2s;
-}
-
-.catBtn:hover {
-  transform: translateX(3px);
-}
-
-.catBtn.active {
-  background: var(--accent-bg);
-  border-left: 3px solid var(--accent);
+  color: var(--accent);
 }
 
 /* =========================
    ACTION BUTTONS
 ========================= */
-button {
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-}
 
-.button {
-  background: var(--accent);
-  color: white;
-}
-
-/* edit/delete */
-.actions {
-  display: flex;
-  gap: 6px;
-  margin-top: 10px;
-}
-
-/* =========================
-   MODAL
-========================= */
-.modalOverlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.6);
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.modal {
-  background: var(--bg);
-  padding: 20px;
-  border-radius: 10px;
-  width: 400px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.modal input,
-.modal textarea,
-.modal select {
-  padding: 8px;
-  border-radius: 6px;
-  border: 1px solid var(--border);
-  background: var(--code-bg);
-  color: var(--text-h);
-}
-
-.modalActions {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 10px;
-}
 .actions {
   display: flex;
   gap: 8px;
   margin-top: 10px;
 }
 
-/* EDIT BUTTON */
 .editBtn {
   flex: 1;
-  background: #ffe100;
+  padding: 6px;
   border: none;
-  padding: 8px;
-  color: black;
+  border-radius: 6px;
+  background: #ffe100;
+  cursor: pointer;
+}
+
+.deleteBtn {
+  flex: 1;
+  padding: 6px;
+  border: none;
+  border-radius: 6px;
+  background: #ef4444;
+  color: white;
+  cursor: pointer;
+}
+
+/* =========================
+   CATEGORY BUTTONS (NEW FEATURE SUPPORT)
+========================= */
+
+.catBtn {
+  width: 100%;
+  padding: 6px;
+  margin-bottom: 6px;
+  border: 1px solid var(--border);
+  background: white;
   border-radius: 6px;
   cursor: pointer;
-  font-weight: 500;
 }
 
-.editBtn:hover {
-  opacity: 0.85;
+.catBtn.active {
+  background: var(--accent-bg);
+  border-color: var(--accent-border);
+  color: var(--accent);
 }
 
-/* DELETE BUTTON */
-.deleteBtn {
+/* =========================
+   FILTER BUTTONS (USER / LIBRARY)
+========================= */
+
+.filterRow {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.filterBtn {
+  flex: 1;
+  padding: 6px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: white;
+  cursor: pointer;
+}
+
+.filterBtn.active {
+  background: var(--accent-bg);
+  border-color: var(--accent-border);
+  color: var(--accent);
+}
+
+/* =========================
+   MODAL
+========================= */
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 400px;
+}
+
+.modalActions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.saveBtn {
+  flex: 1;
+  background: #22c55e;
+  border: none;
+  padding: 8px;
+  color: white;
+  border-radius: 6px;
+}
+
+.cancelBtn {
   flex: 1;
   background: #ef4444;
   border: none;
   padding: 8px;
   color: white;
   border-radius: 6px;
-  cursor: pointer;
-  font-weight: 500;
-}
-
-.deleteBtn:hover {
-  opacity: 0.85;
 }

@@ -1,26 +1,38 @@
 [
   {
-    "id": 1,
-    "title": "For Loop",
+    "id": "js-console",
+    "language": "JavaScript",
+    "category": "Core",
+    "title": "Console Log",
+    "description": "Print output to console",
+    "tags": [
+      "console",
+      "debug"
+    ],
+    "code": "console.log('Hello World');"
+  },
+  {
+    "id": "js-map",
+    "language": "JavaScript",
+    "category": "Array Methods",
+    "title": "Array Map",
+    "description": "Transform array items",
+    "tags": [
+      "array",
+      "map"
+    ],
+    "code": "const newArr = arr.map(x => x * 2);"
+  },
+  {
+    "id": "cpp-loop",
     "language": "C++",
-    "category": "Loops",
-    "description": "Repeats code a fixed number of times",
+    "category": "Basics",
+    "title": "For Loop",
+    "description": "Basic loop structure",
     "tags": [
       "loop",
       "iteration"
     ],
-    "code": "for(int i = 0; i < 10; i++) {\n  cout << i;\n}"
-  },
-  {
-    "id": 2,
-    "title": "Console Log",
-    "language": "JavaScript",
-    "category": "Basics",
-    "description": "Print output to console",
-    "tags": [
-      "debug",
-      "output"
-    ],
-    "code": "console.log('Hello world');"
+    "code": "for (int i = 0; i < 10; i++) {\n  cout << i;\n}"
   }
 ]

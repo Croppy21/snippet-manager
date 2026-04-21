@@ -15,28 +15,39 @@ const readData = () => JSON.parse(fs.readFileSync(DATA_PATH));
 const writeData = (data) =>
   fs.writeFileSync(DATA_PATH, JSON.stringify(data, null, 2));
 
-app.get("/", (req, res) => {
-  res.send("API running");
-});
-
+// =====================
+// GET ALL
+// =====================
 app.get("/snippets", (req, res) => {
-  res.json(readData());
+  const data = readData();
+
+  // ensure backwards compatibility
+  const safeData = data.map((s) => ({
+    source: "user",
+    ...s,
+    source: s.source || "user"
+  }));
+
+  res.json(safeData);
 });
 
+// =====================
+// CREATE
+// =====================
 app.post("/snippets", (req, res) => {
   const data = readData();
 
-  let tags = req.body.tags;
-
-  // ensure tags ALWAYS becomes array
-  if (typeof tags === "string") {
-    tags = tags.split(",").map((t) => t.trim());
-  }
-
   const newSnippet = {
     id: Date.now(),
-    ...req.body,
-    tags: tags || []
+    title: req.body.title,
+    language: req.body.language,
+    category: req.body.category,
+    description: req.body.description,
+    tags: req.body.tags || [],
+    code: req.body.code,
+
+    // 🔥 IMPORTANT: default source
+    source: req.body.source || "user"
   };
 
   data.push(newSnippet);
@@ -45,22 +56,19 @@ app.post("/snippets", (req, res) => {
   res.json(newSnippet);
 });
 
+// =====================
+// UPDATE
+// =====================
 app.put("/snippets/:id", (req, res) => {
   let data = readData();
   const id = Number(req.params.id);
-
-  let tags = req.body.tags;
-
-  if (typeof tags === "string") {
-    tags = tags.split(",").map((t) => t.trim());
-  }
 
   data = data.map((s) =>
     s.id === id
       ? {
           ...s,
           ...req.body,
-          tags: tags || []
+          source: s.source || "user"
         }
       : s
   );
@@ -69,6 +77,9 @@ app.put("/snippets/:id", (req, res) => {
   res.json({ ok: true });
 });
 
+// =====================
+// DELETE
+// =====================
 app.delete("/snippets/:id", (req, res) => {
   let data = readData();
   const id = Number(req.params.id);
