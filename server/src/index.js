@@ -26,10 +26,17 @@ app.get("/snippets", (req, res) => {
 app.post("/snippets", (req, res) => {
   const data = readData();
 
+  let tags = req.body.tags;
+
+  // ensure tags ALWAYS becomes array
+  if (typeof tags === "string") {
+    tags = tags.split(",").map((t) => t.trim());
+  }
+
   const newSnippet = {
     id: Date.now(),
     ...req.body,
-    tags: req.body.tags || []
+    tags: tags || []
   };
 
   data.push(newSnippet);
@@ -42,8 +49,20 @@ app.put("/snippets/:id", (req, res) => {
   let data = readData();
   const id = Number(req.params.id);
 
+  let tags = req.body.tags;
+
+  if (typeof tags === "string") {
+    tags = tags.split(",").map((t) => t.trim());
+  }
+
   data = data.map((s) =>
-    s.id === id ? { ...s, ...req.body } : s
+    s.id === id
+      ? {
+          ...s,
+          ...req.body,
+          tags: tags || []
+        }
+      : s
   );
 
   writeData(data);

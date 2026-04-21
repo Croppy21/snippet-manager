@@ -5,7 +5,10 @@
     "language": "C++",
     "category": "Loops",
     "description": "Repeats code a fixed number of times",
-    "tags": ["loop", "iteration"],
+    "tags": [
+      "loop",
+      "iteration"
+    ],
     "code": "for(int i = 0; i < 10; i++) {\n  cout << i;\n}"
   },
   {
@@ -14,7 +17,10 @@
     "language": "JavaScript",
     "category": "Basics",
     "description": "Print output to console",
-    "tags": ["debug", "output"],
+    "tags": [
+      "debug",
+      "output"
+    ],
     "code": "console.log('Hello world');"
   }
 ]

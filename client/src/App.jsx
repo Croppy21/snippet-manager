@@ -4,27 +4,28 @@ import "highlight.js/styles/github-dark.css";
 import "./App.css";
 
 export default function App() {
-  const [snippets, setSnippets] = useState([]);
+  const API = "http://localhost:5000";
 
-  const emptyForm = {
+  const [snippets, setSnippets] = useState([]);
+  const [search, setSearch] = useState("");
+  const [activeCategory, setActiveCategory] = useState("All");
+
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+
+  const [editingSnippet, setEditingSnippet] = useState(null);
+
+  const [form, setForm] = useState({
     title: "",
     language: "",
     category: "",
     description: "",
-    tags: [],
-    code: ""
-  };
-
-  const [form, setForm] = useState(emptyForm);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingSnippet, setEditingSnippet] = useState(null);
-  const [search, setSearch] = useState("");
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
-
-  const API = "http://localhost:5000";
+    tags: "",
+    code: "",
+  });
 
   // =====================
-  // LOAD
+  // LOAD SNIPPETS
   // =====================
   const loadSnippets = () => {
     fetch(`${API}/snippets`)
@@ -40,37 +41,43 @@ export default function App() {
   // SYNTAX HIGHLIGHT
   // =====================
   useEffect(() => {
-    document.querySelectorAll("pre code").forEach((block) => {
-      hljs.highlightElement(block);
-    });
+    setTimeout(() => {
+      document.querySelectorAll("pre code").forEach((block) => {
+        hljs.highlightElement(block);
+      });
+    }, 0);
   }, [snippets]);
 
   // =====================
-  // CREATE
+  // FORM CHANGE
   // =====================
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    if (name === "tags") {
-      setForm({
-        ...form,
-        tags: value
-          .split(",")
-          .map((t) => t.trim())
-          .filter(Boolean)
-      });
-    } else {
-      setForm({ ...form, [name]: value });
-    }
+    setForm({
+      ...form,
+      [name]: name === "tags" ? value.split(",").map((t) => t.trim()) : value,
+    });
   };
 
+  // =====================
+  // CREATE
+  // =====================
   const addSnippet = () => {
     fetch(`${API}/snippets`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form)
+      body: JSON.stringify(form),
     }).then(() => {
-      setForm(emptyForm);
+      setForm({
+        title: "",
+        language: "",
+        category: "",
+        description: "",
+        tags: "",
+        code: "",
+      });
+      setIsCreateOpen(false);
       loadSnippets();
     });
   };
@@ -80,66 +87,64 @@ export default function App() {
   // =====================
   const deleteSnippet = (id) => {
     fetch(`${API}/snippets/${id}`, {
-      method: "DELETE"
+      method: "DELETE",
     }).then(loadSnippets);
   };
 
   // =====================
   // EDIT
   // =====================
-  const openModal = (snippet) => {
+  const openEdit = (snippet) => {
     setEditingSnippet({
       ...snippet,
-      tags: snippet.tags || []
+      tags: (snippet.tags || []).join(", "),
     });
-    setIsModalOpen(true);
+    setIsEditOpen(true);
   };
 
   const handleEditChange = (e) => {
     const { name, value } = e.target;
 
-    if (name === "tags") {
-      setEditingSnippet({
-        ...editingSnippet,
-        tags: value
-          .split(",")
-          .map((t) => t.trim())
-          .filter(Boolean)
-      });
-    } else {
-      setEditingSnippet({
-        ...editingSnippet,
-        [name]: value
-      });
-    }
+    setEditingSnippet({
+      ...editingSnippet,
+      [name]: name === "tags" ? value.split(",").map((t) => t.trim()) : value,
+    });
   };
 
   const updateSnippet = () => {
     fetch(`${API}/snippets/${editingSnippet.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(editingSnippet)
+      body: JSON.stringify(editingSnippet),
     }).then(() => {
-      setIsModalOpen(false);
+      setIsEditOpen(false);
       setEditingSnippet(null);
       loadSnippets();
     });
   };
 
   // =====================
-  // SEARCH
+  // FILTERS
   // =====================
+  const categories = [
+    "All",
+    ...new Set(snippets.map((s) => s.category).filter(Boolean)),
+  ];
+
   const filteredSnippets = snippets.filter((s) => {
     const q = search.toLowerCase();
 
-    return (
+    const matchesSearch =
       s.title?.toLowerCase().includes(q) ||
       s.language?.toLowerCase().includes(q) ||
-      s.category?.toLowerCase().includes(q) ||
       s.description?.toLowerCase().includes(q) ||
       s.code?.toLowerCase().includes(q) ||
-      (s.tags || []).some((t) => t.toLowerCase().includes(q))
-    );
+      (s.tags || []).some((t) => t.toLowerCase().includes(q));
+
+    const matchesCategory =
+      activeCategory === "All" || s.category === activeCategory;
+
+    return matchesSearch && matchesCategory;
   });
 
   // =====================
@@ -147,26 +152,44 @@ export default function App() {
   // =====================
   return (
     <div className="app">
-      {/* TOP */}
+      {/* TOP BAR */}
       <div className="topbar">
         <h1>Snippet Manager</h1>
 
         <input
           className="search"
-          placeholder="Search snippets..."
+          placeholder="Search..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
 
-      {/* CONTENT */}
+      {/* LAYOUT */}
       <div className="layout">
+        {/* SIDEBAR */}
         <div className="sidebar">
-          <button onClick={() => setIsCreateOpen(true)} className="button">
+          <h2>Actions</h2>
+
+          <button className="button" onClick={() => setIsCreateOpen(true)}>
             + Add Snippet
           </button>
+
+          <hr />
+
+          <h2>Categories</h2>
+
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              className={`catBtn ${activeCategory === cat ? "active" : ""}`}
+              onClick={() => setActiveCategory(cat)}
+            >
+              {cat}
+            </button>
+          ))}
         </div>
 
+        {/* CONTENT */}
         <div className="content">
           <div className="grid">
             {filteredSnippets.map((s) => (
@@ -179,25 +202,31 @@ export default function App() {
 
                 <p className="desc">{s.description}</p>
 
-                {/* SYNTAX HIGHLIGHT */}
                 <pre>
                   <code className={`language-${s.language?.toLowerCase()}`}>
                     {s.code}
                   </code>
                 </pre>
 
-                {/* TAGS FIXED */}
                 <div className="tags">
                   {(s.tags || []).map((tag, i) => (
-                    <span key={i} className="tag">
+                    <span className="tag" key={i}>
                       #{tag}
                     </span>
                   ))}
                 </div>
 
                 <div className="actions">
-                  <button onClick={() => openModal(s)}>Edit</button>
-                  <button onClick={() => deleteSnippet(s.id)}>Delete</button>
+                  <button className="editBtn" onClick={() => openEdit(s)}>
+                    Edit
+                  </button>
+
+                  <button
+                    className="deleteBtn"
+                    onClick={() => deleteSnippet(s.id)}
+                  >
+                    Delete
+                  </button>
                 </div>
               </div>
             ))}
@@ -205,80 +234,100 @@ export default function App() {
         </div>
       </div>
 
-      {/* CREATE */}
+      {/* CREATE MODAL */}
       {isCreateOpen && (
         <div className="modalOverlay">
           <div className="modal">
             <h2>Create Snippet</h2>
 
             <input name="title" placeholder="Title" onChange={handleChange} />
-
-            <select name="language" onChange={handleChange}>
-              <option value="">Language</option>
-              <option value="javascript">JavaScript</option>
-              <option value="cpp">C++</option>
-              <option value="python">Python</option>
-            </select>
-
-            <input name="category" placeholder="Category" onChange={handleChange} />
-            <textarea name="description" placeholder="Description" onChange={handleChange} />
-            <input name="tags" placeholder="loop, array, basics" onChange={handleChange} />
+            <input
+              name="language"
+              placeholder="Language"
+              onChange={handleChange}
+            />
+            <input
+              name="category"
+              placeholder="Category"
+              onChange={handleChange}
+            />
+            <input
+              name="tags"
+              placeholder="Tags (comma separated)"
+              onChange={handleChange}
+            />
+            <textarea
+              name="description"
+              placeholder="Description"
+              onChange={handleChange}
+            />
             <textarea name="code" placeholder="Code" onChange={handleChange} />
 
-            <button onClick={addSnippet}>Create</button>
-            <button onClick={() => setIsCreateOpen(false)}>Cancel</button>
+            <div className="modalActions">
+              <button className="saveBtn" onClick={addSnippet}>
+                Create
+              </button>
+
+              <button
+                className="cancelBtn"
+                onClick={() => setIsCreateOpen(false)}
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}
 
-      {/* EDIT */}
-      {isModalOpen && editingSnippet && (
+      {/* EDIT MODAL */}
+      {isEditOpen && (
         <div className="modalOverlay">
           <div className="modal">
             <h2>Edit Snippet</h2>
 
             <input
               name="title"
-              value={editingSnippet.title}
+              value={editingSnippet?.title || ""}
               onChange={handleEditChange}
             />
-
-            <select
+            <input
               name="language"
-              value={editingSnippet.language}
+              value={editingSnippet?.language || ""}
               onChange={handleEditChange}
-            >
-              <option value="javascript">JavaScript</option>
-              <option value="cpp">C++</option>
-              <option value="python">Python</option>
-            </select>
-
+            />
             <input
               name="category"
-              value={editingSnippet.category}
+              value={editingSnippet?.category || ""}
               onChange={handleEditChange}
             />
-
-            <textarea
-              name="description"
-              value={editingSnippet.description}
-              onChange={handleEditChange}
-            />
-
             <input
               name="tags"
-              value={editingSnippet.tags.join(", ")}
+              value={editingSnippet?.tags || ""}
               onChange={handleEditChange}
             />
-
+            <textarea
+              name="description"
+              value={editingSnippet?.description || ""}
+              onChange={handleEditChange}
+            />
             <textarea
               name="code"
-              value={editingSnippet.code}
+              value={editingSnippet?.code || ""}
               onChange={handleEditChange}
             />
 
-            <button onClick={updateSnippet}>Save</button>
-            <button onClick={() => setIsModalOpen(false)}>Cancel</button>
+            <div className="modalActions">
+              <button className="saveBtn" onClick={updateSnippet}>
+                Save
+              </button>
+
+              <button
+                className="cancelBtn"
+                onClick={() => setIsEditOpen(false)}
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}

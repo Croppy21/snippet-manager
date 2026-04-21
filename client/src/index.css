@@ -9,7 +9,8 @@
   --accent-border: rgba(170, 59, 255, 0.5);
   --social-bg: rgba(244, 243, 236, 0.5);
   --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+    rgba(0, 0, 0, 0.1) 0 10px 15px -3px,
+    rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
   --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
@@ -17,19 +18,13 @@
 
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;
-  color-scheme: light dark;
   color: var(--text);
   background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
 }
 
+/* =========================
+   DARK MODE
+========================= */
 @media (prefers-color-scheme: dark) {
   :root {
     --text: #9ca3af;
@@ -41,12 +36,6 @@
     --accent-bg: rgba(192, 132, 252, 0.15);
     --accent-border: rgba(192, 132, 252, 0.5);
     --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
   }
 }
 
@@ -54,62 +43,134 @@ body {
   margin: 0;
 }
 
+/* =========================
+   ROOT FIX (FULL WIDTH)
+========================= */
 #root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
   display: flex;
   flex-direction: column;
-  box-sizing: border-box;
 }
 
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
+/* =========================
+   APP WRAPPER
+========================= */
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
-}
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
-}
-p {
-  margin: 0;
+/* =========================
+   TOP BAR
+========================= */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
 }
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
-}
-
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
+.search {
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
   background: var(--code-bg);
+  color: var(--text-h);
+  width: 240px;
 }
 
+/* =========================
+   MAIN LAYOUT (FIXED DASHBOARD)
+========================= */
+.layout {
+  display: flex;
+  flex: 1;
+  min-height: calc(100vh - 70px);
+}
+
+/* =========================
+   SIDEBAR (FIXED)
+========================= */
+.sidebar {
+  width: 260px;
+  min-width: 260px;
+  padding: 16px;
+  border-right: 1px solid var(--border);
+  background: var(--social-bg);
+
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* buttons in sidebar */
+.sidebar h2 {
+  font-size: 14px;
+  margin: 10px 0 5px;
+  color: var(--text-h);
+}
+
+/* =========================
+   CONTENT AREA
+========================= */
+.content {
+  flex: 1;
+  padding: 20px;
+}
+
+/* =========================
+   GRID
+========================= */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+/* =========================
+   CARD
+========================= */
+.card {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.meta {
+  font-size: 12px;
+  opacity: 0.7;
+  margin-bottom: 6px;
+}
+
+.desc {
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+/* =========================
+   CODE BLOCK
+========================= */
+pre {
+  background: #0f172a;
+  color: white;
+  padding: 10px;
+  border-radius: 8px;
+  overflow-x: auto;
+  font-size: 12px;
+}
+
+/* =========================
+   TAGS FIX (IMPORTANT)
+========================= */
 .tags {
   margin-top: 10px;
   display: flex;
@@ -123,4 +184,125 @@ code {
   color: var(--text-h);
   border-radius: 6px;
   font-size: 12px;
+}
+
+/* =========================
+   CATEGORY BUTTONS
+========================= */
+.catBtn {
+  padding: 8px 10px;
+  border: none;
+  border-radius: 6px;
+  background: var(--social-bg);
+  color: var(--text-h);
+  cursor: pointer;
+  text-align: left;
+  transition: 0.2s;
+}
+
+.catBtn:hover {
+  transform: translateX(3px);
+}
+
+.catBtn.active {
+  background: var(--accent-bg);
+  border-left: 3px solid var(--accent);
+}
+
+/* =========================
+   ACTION BUTTONS
+========================= */
+button {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+
+.button {
+  background: var(--accent);
+  color: white;
+}
+
+/* edit/delete */
+.actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+/* =========================
+   MODAL
+========================= */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal {
+  background: var(--bg);
+  padding: 20px;
+  border-radius: 10px;
+  width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modal input,
+.modal textarea,
+.modal select {
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--code-bg);
+  color: var(--text-h);
+}
+
+.modalActions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+.actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+/* EDIT BUTTON */
+.editBtn {
+  flex: 1;
+  background: #ffe100;
+  border: none;
+  padding: 8px;
+  color: black;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.editBtn:hover {
+  opacity: 0.85;
+}
+
+/* DELETE BUTTON */
+.deleteBtn {
+  flex: 1;
+  background: #ef4444;
+  border: none;
+  padding: 8px;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.deleteBtn:hover {
+  opacity: 0.85;
 }
