@@ -21,46 +21,59 @@ const SNIPPETS_DIR = path.join(
   "snippets"
 );
 
+// =====================
+// HELPERS
+// =====================
 function ensureSnippetsDir() {
   if (!fs.existsSync(SNIPPETS_DIR)) {
     fs.mkdirSync(SNIPPETS_DIR, { recursive: true });
   }
 }
 
-// =====================
-// LANGUAGE NORMALIZER (🔥 FIX)
-// =====================
+function normalizeTags(tags) {
+  if (!tags) return [];
+  if (Array.isArray(tags)) return tags;
+
+  if (typeof tags === "string") {
+    return tags
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean);
+  }
+
+  return [];
+}
+
 function normalizeLanguage(lang) {
   if (!lang) return "global";
 
   const map = {
     javascript: "javascript",
     js: "javascript",
-
     html: "html",
-
     css: "css",
-
-    "c++": "cpp",
     cpp: "cpp",
-
+    "c++": "cpp",
     python: "python",
-
     java: "java",
-
     typescript: "typescript",
-    ts: "typescript"
+    global: "global",
   };
 
-  return map[lang.toLowerCase()] || "global";
+  return map[lang.toLowerCase()] || lang.toLowerCase();
 }
 
-// =====================
-// READ / WRITE DB
-// =====================
-const readData = () => JSON.parse(fs.readFileSync(DATA_PATH));
-const writeData = (data) =>
+function makeKey(s) {
+  return `${normalizeLanguage(s.language)}::${s.prefix}`;
+}
+
+function readData() {
+  return JSON.parse(fs.readFileSync(DATA_PATH));
+}
+
+function writeData(data) {
   fs.writeFileSync(DATA_PATH, JSON.stringify(data, null, 2));
+}
 
 // =====================
 // IMPORT FROM VSCODE
@@ -87,21 +100,18 @@ function importFromVSCode() {
       for (const [name, snip] of Object.entries(raw)) {
         if (!snip?.body) continue;
 
-        const prefix = Array.isArray(snip.prefix)
-          ? snip.prefix[0]
-          : snip.prefix || name.toLowerCase().replace(/\s+/g, "");
-
         snippets.push({
           id: Date.now() + Math.random(),
           title: name,
-          language,
+          language: normalizeLanguage(language),
           category: "vscode",
           description: snip.description || "",
           tags: [],
+          type: "snippet",
           code: Array.isArray(snip.body)
             ? snip.body.join("\n")
             : snip.body,
-          prefix,
+          prefix: snip.prefix || name.toLowerCase().replace(/\s+/g, ""),
           source: "vscode",
         });
       }
@@ -114,7 +124,7 @@ function importFromVSCode() {
 }
 
 // =====================
-// EXPORT TO VSCODE (🔥 FIXED)
+// EXPORT TO VSCODE
 // =====================
 function exportToVSCode(allSnippets) {
   ensureSnippetsDir();
@@ -122,7 +132,7 @@ function exportToVSCode(allSnippets) {
   const grouped = {};
 
   for (const s of allSnippets) {
-    const lang = normalizeLanguage(s.language); // ✅ FIX
+    const lang = normalizeLanguage(s.language);
 
     if (!grouped[lang]) grouped[lang] = {};
 
@@ -130,15 +140,14 @@ function exportToVSCode(allSnippets) {
       .toLowerCase()
       .replace(/\s+/g, "");
 
-    // prevent duplicates
     if (grouped[lang][key]) continue;
 
     grouped[lang][key] = {
       prefix: key,
       body: Array.isArray(s.code)
         ? s.code
-        : s.code.split("\n"),
-      description: s.description || ""
+        : String(s.code).split("\n"),
+      description: s.description || "",
     };
   }
 
@@ -165,6 +174,8 @@ app.get("/snippets", (req, res) => {
   res.json(
     data.map((s) => ({
       ...s,
+      language: normalizeLanguage(s.language),
+      tags: normalizeTags(s.tags),
       source: s.source || "user",
     }))
   );
@@ -177,10 +188,11 @@ app.post("/snippets", (req, res) => {
   const newSnippet = {
     id: Date.now(),
     title: req.body.title,
-    language: req.body.language,
+    language: normalizeLanguage(req.body.language),
     category: req.body.category,
     description: req.body.description,
-    tags: req.body.tags || [],
+    tags: normalizeTags(req.body.tags),
+    type: req.body.type || "snippet",
     code: req.body.code,
     prefix:
       req.body.prefix ||
@@ -194,13 +206,26 @@ app.post("/snippets", (req, res) => {
   res.json(newSnippet);
 });
 
-// UPDATE
+// UPDATE (FIXED — does NOT overwrite source)
 app.put("/snippets/:id", (req, res) => {
   let data = readData();
   const id = Number(req.params.id);
 
   data = data.map((s) =>
-    s.id === id ? { ...s, ...req.body } : s
+    s.id === id
+      ? {
+          ...s,
+          title: req.body.title,
+          language: normalizeLanguage(req.body.language),
+          prefix: req.body.prefix,
+          category: req.body.category,
+          description: req.body.description,
+          tags: normalizeTags(req.body.tags),
+          type: req.body.type || s.type || "snippet",
+          code: req.body.code,
+          source: s.source || "user",
+        }
+      : s
   );
 
   writeData(data);
@@ -219,26 +244,33 @@ app.delete("/snippets/:id", (req, res) => {
 });
 
 // =====================
-// IMPORT FROM VSCODE
+// VS CODE IMPORT (DEDUP)
 // =====================
 app.get("/vscode/import", (req, res) => {
   const vscodeSnippets = importFromVSCode();
-
   const current = readData();
 
-  const filtered = current.filter(
-    (s) => s.source !== "vscode"
-  );
+  const map = new Map();
 
-  const merged = [...filtered, ...vscodeSnippets];
+  for (const s of current) {
+    map.set(makeKey(s), s);
+  }
 
+  for (const s of vscodeSnippets) {
+    const key = makeKey(s);
+    if (!map.has(key)) {
+      map.set(key, s);
+    }
+  }
+
+  const merged = Array.from(map.values());
   writeData(merged);
 
   res.json(vscodeSnippets);
 });
 
 // =====================
-// EXPORT TO VSCODE
+// VS CODE EXPORT (FIXED — NO SOURCE MUTATION)
 // =====================
 app.post("/vscode/export", (req, res) => {
   const allSnippets = readData();
@@ -249,7 +281,7 @@ app.post("/vscode/export", (req, res) => {
 });
 
 // =====================
-// START SERVER
+// START
 // =====================
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

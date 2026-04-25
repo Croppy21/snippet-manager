@@ -1,93 +1,85 @@
 [
   {
-    "id": "js-console",
-    "language": "JavaScript",
-    "category": "Core",
-    "title": "Console Log",
-    "description": "Print output to console",
-    "tags": [
-      "console",
-      "debug"
-    ],
-    "code": "console.log('Hello World');"
-  },
-  {
-    "id": "js-map",
-    "language": "JavaScript",
-    "category": "Array Methods",
-    "title": "Array Map",
-    "description": "Transform array items",
-    "tags": [
-      "array",
-      "map"
-    ],
-    "code": "const newArr = arr.map(x => x * 2);"
-  },
-  {
-    "id": "cpp-loop",
-    "language": "C++",
-    "category": "Basics",
-    "title": "For Loop",
-    "description": "Basic loop structure",
-    "tags": [
-      "loop",
-      "iteration"
-    ],
-    "code": "for (int i = 0; i < 10; i++) {\n  cout << i;\n}"
-  },
-  {
-    "id": 1777098176893,
-    "title": "Hello World",
-    "language": "HTML",
-    "category": "Basics",
-    "description": "Test",
-    "tags": [],
-    "code": "<p>Hello World!</p>",
-    "prefix": "helloworld",
-    "source": "user"
-  },
-  {
-    "id": 1777099807008.3613,
-    "title": "forloop",
-    "language": "cpp",
-    "category": "vscode",
-    "description": "Basic loop structure",
-    "tags": [],
-    "code": "for (int i = 0; i < 10; i++) {\n  cout << i;\n}",
-    "prefix": "forloop",
-    "source": "vscode"
-  },
-  {
-    "id": 1777099807008.7551,
-    "title": "helloworld",
+    "id": 1777104841734,
+    "title": "HTML Boilerplate Test",
     "language": "html",
-    "category": "vscode",
-    "description": "Test",
-    "tags": [],
-    "code": "<p>Hello World!</p>",
-    "prefix": "helloworld",
+    "category": "web",
+    "description": "html5 template",
+    "tags": [
+      "html",
+      "boilerplate"
+    ],
+    "type": "template",
+    "code": "<!DOCTYPE html>\n<html>\n<head>\n  <title>Test</title>\n</head>\n<body>\n  <h1>Hello World</h1>\n</body>\n</html>",
+    "prefix": "htmlbase",
     "source": "vscode"
   },
   {
-    "id": 1777099807009.3008,
-    "title": "consolelog",
+    "id": 1777105918612,
+    "title": "React Functional Component",
     "language": "javascript",
-    "category": "vscode",
-    "description": "Print output to console",
-    "tags": [],
-    "code": "console.log('Hello World');",
-    "prefix": "consolelog",
+    "category": "react",
+    "description": "Reusable React functional component starter",
+    "tags": [
+      "react",
+      "component",
+      "jsx",
+      "boilerplate"
+    ],
+    "type": "template",
+    "code": "import { useState } from \"react\";\n\nexport default function ComponentName() {\n  const [state, setState] = useState(null);\n\n  return (\n    <div>\n      <h1>ComponentName</h1>\n    </div>\n  );\n}",
+    "prefix": "rfc",
     "source": "vscode"
   },
   {
-    "id": 1777099807009.8013,
-    "title": "arraymap",
+    "id": 1777105972309,
+    "title": "Express Server Setup",
     "language": "javascript",
-    "category": "vscode",
-    "description": "Transform array items",
-    "tags": [],
-    "code": "const newArr = arr.map(x => x * 2);",
-    "prefix": "arraymap",
+    "category": "backend",
+    "description": "Basic Express.js server setup with JSON support",
+    "tags": [
+      "node",
+      "express",
+      "server",
+      "api"
+    ],
+    "type": "template",
+    "code": "const express = require(\"express\");\nconst app = express();\n\napp.use(express.json());\n\napp.get(\"/\", (req, res) => {\n  res.json({ message: \"Server running\" });\n});\n\napp.listen(5000, () => {\n  console.log(\"Server running on port 5000\");\n});",
+    "prefix": "express-server",
+    "source": "vscode"
+  },
+  {
+    "id": 1777106024278,
+    "title": "D3 Circle Example",
+    "language": "javascript",
+    "category": "data-visualization",
+    "description": "Basic D3 circle rendering example",
+    "tags": [
+      "d3",
+      "svg",
+      "visualization",
+      "circle"
+    ],
+    "type": "template",
+    "code": "import * as d3 from \"d3\";\n\nconst svg = d3.select(\"body\")\n  .append(\"svg\")\n  .attr(\"width\", 300)\n  .attr(\"height\", 300);\n\nsvg.append(\"circle\")\n  .attr(\"cx\", 150)\n  .attr(\"cy\", 150)\n  .attr(\"r\", 50)\n  .attr(\"fill\", \"steelblue\");",
+    "prefix": "d3-circle",
+    "source": "vscode"
+  },
+  {
+    "id": 1777106071406,
+    "title": "Fetch JSON Helper",
+    "language": "javascript",
+    "category": "utils",
+    "description": "Reusable async fetch wrapper",
+    "tags": [
+      "fetch",
+      "api",
+      "async",
+      "http"
+    ],
+    "type": "snippet",
+    "code": "async function fetchJSON(url) {\n  const res = await fetch(url);\n  if (!res.ok) throw new Error(\"Request failed\");\n  return await res.json();\n}",
+    "prefix": "fetchjson",
     "source": "vscode"
   }
 ]

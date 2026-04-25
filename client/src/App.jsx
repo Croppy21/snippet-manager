@@ -19,6 +19,7 @@ export default function App() {
     title: "",
     language: "",
     prefix: "",
+    type: "snippet",
     category: "",
     description: "",
     tags: "",
@@ -39,7 +40,7 @@ export default function App() {
   }, []);
 
   // =====================
-  // SYNTAX HIGHLIGHT
+  // HIGHLIGHT
   // =====================
   useEffect(() => {
     setTimeout(() => {
@@ -54,43 +55,29 @@ export default function App() {
   // =====================
   const handleChange = (e) => {
     const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+  };
 
-    // auto-generate prefix from title (only if empty)
-    if (name === "title" && !form.prefix) {
-      setForm((prev) => ({
-        ...prev,
-        title: value,
-        prefix: value.toLowerCase().replace(/\s+/g, ""),
-      }));
-      return;
-    }
+  const normalizeTags = (tags) => {
+    if (!tags) return [];
+    if (Array.isArray(tags)) return tags;
 
-    setForm({
-      ...form,
-      [name]:
-        name === "tags"
-          ? value
-              .split(",")
-              .map((t) => t.trim())
-              .filter(Boolean)
-          : value,
-    });
+    return tags
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean);
   };
 
   // =====================
   // CREATE
   // =====================
   const addSnippet = () => {
-    const cleanPrefix =
-      form.prefix || form.title.toLowerCase().replace(/\s+/g, "");
-
     fetch(`${API}/snippets`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         ...form,
-        language: form.language.toLowerCase(), // ✅ enforce correct ID
-        prefix: cleanPrefix,
+        tags: normalizeTags(form.tags),
         source: "user",
       }),
     }).then(() => {
@@ -98,6 +85,7 @@ export default function App() {
         title: "",
         language: "",
         prefix: "",
+        type: "snippet",
         category: "",
         description: "",
         tags: "",
@@ -124,38 +112,20 @@ export default function App() {
   const openEdit = (snippet) => {
     setEditingSnippet({
       ...snippet,
-      tags: (snippet.tags || []).join(", "),
+      tags: Array.isArray(snippet.tags)
+        ? snippet.tags.join(", ")
+        : snippet.tags || "",
     });
     setIsEditOpen(true);
   };
 
-  const handleEditChange = (e) => {
-    const { name, value } = e.target;
-
-    setEditingSnippet({
-      ...editingSnippet,
-      [name]:
-        name === "tags"
-          ? value
-              .split(",")
-              .map((t) => t.trim())
-              .filter(Boolean)
-          : value,
-    });
-  };
-
   const updateSnippet = () => {
-    const cleanPrefix =
-      editingSnippet.prefix ||
-      editingSnippet.title.toLowerCase().replace(/\s+/g, "");
-
     fetch(`${API}/snippets/${editingSnippet.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         ...editingSnippet,
-        language: editingSnippet.language.toLowerCase(),
-        prefix: cleanPrefix,
+        tags: normalizeTags(editingSnippet.tags),
       }),
     }).then(() => {
       setIsEditOpen(false);
@@ -163,21 +133,7 @@ export default function App() {
       loadSnippets();
     });
   };
-  // =====================
-  // VSCODE SYNC
-  // =====================
-  const importFromVSCode = async () => {
-    await fetch(`${API}/vscode/import`);
-    loadSnippets();
-  };
 
-  const exportToVSCode = async () => {
-    await fetch(`${API}/vscode/export`, {
-      method: "POST",
-    });
-
-    alert("Synced to VS Code!");
-  };
   // =====================
   // FILTERS
   // =====================
@@ -189,38 +145,38 @@ export default function App() {
   const filteredSnippets = snippets.filter((s) => {
     const q = search.toLowerCase();
 
-    const matchesSearch =
-      s.title?.toLowerCase().includes(q) ||
-      s.language?.toLowerCase().includes(q) ||
-      s.description?.toLowerCase().includes(q) ||
-      s.code?.toLowerCase().includes(q) ||
-      (s.tags || []).some((t) => t.toLowerCase().includes(q));
-
-    const matchesCategory =
-      activeCategory === "All" || s.category === activeCategory;
-
-    const matchesSource = activeSource === "all" || s.source === activeSource;
-
-    return matchesSearch && matchesCategory && matchesSource;
+    return (
+      (s.title?.toLowerCase().includes(q) ||
+        s.language?.toLowerCase().includes(q) ||
+        s.description?.toLowerCase().includes(q) ||
+        s.code?.toLowerCase().includes(q) ||
+        (s.tags || []).some((t) =>
+          t.toLowerCase().includes(q)
+        )) &&
+      (activeCategory === "All" ||
+        s.category === activeCategory) &&
+      (activeSource === "all" ||
+        s.source === activeSource)
+    );
   });
 
   return (
     <div className="app">
-      {/* TOP */}
+
+      {/* TOP BAR */}
       <div className="topbar">
         <h1>Snippet Manager</h1>
 
         <div className="topbar-right">
-          <button className="syncBtn" onClick={importFromVSCode}>
-            ⬇ Import
+          <button onClick={() => fetch(`${API}/vscode/import`).then(loadSnippets)}>
+            Import
           </button>
 
-          <button className="syncBtn" onClick={exportToVSCode}>
-            ⬆ Sync
+          <button onClick={() => fetch(`${API}/vscode/export`, { method: "POST" })}>
+            Export
           </button>
 
           <input
-            className="search"
             placeholder="Search..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -229,194 +185,161 @@ export default function App() {
       </div>
 
       <div className="layout">
+
         {/* SIDEBAR */}
         <div className="sidebar">
-          <button className="button" onClick={() => setIsCreateOpen(true)}>
-            + Add Snippet
+
+          <button onClick={() => setIsCreateOpen(true)}>
+            + New
           </button>
 
-          <hr />
-
-          <h2>Source</h2>
-
+          <h3>Source</h3>
           <button onClick={() => setActiveSource("all")}>All</button>
-          <button onClick={() => setActiveSource("user")}>My Snippets</button>
-          <button onClick={() => setActiveSource("library")}>
-            Library (empty)
-          </button>
+          <button onClick={() => setActiveSource("user")}>User</button>
+          <button onClick={() => setActiveSource("vscode")}>VS Code</button>
 
-          <hr />
-
-          <h2>Categories</h2>
-
-          {categories.map((cat) => (
+          <h3>Categories</h3>
+          {categories.map((c) => (
             <button
-              key={cat}
-              className={activeCategory === cat ? "active" : ""}
-              onClick={() => setActiveCategory(cat)}
+              key={c}
+              onClick={() => setActiveCategory(c)}
             >
-              {cat}
+              {c}
             </button>
           ))}
         </div>
 
         {/* CONTENT */}
         <div className="content">
-          <div className="grid">
-            {filteredSnippets.map((s) => (
-              <div className="card" key={s.id}>
-                <div className="meta">
-                  {s.title} • {s.language} •
-                  <span className={`source ${s.source}`}>{s.source}</span>
-                </div>
+          {filteredSnippets.map((s) => (
+            <div key={s.id} className="card">
 
-                <p className="desc">{s.description}</p>
-
-                <pre>
-                  <code className={`language-${s.language?.toLowerCase()}`}>
-                    {s.code}
-                  </code>
-                </pre>
-
-                <div className="tags">
-                  {(s.tags || []).map((tag, i) => (
-                    <span className="tag" key={i}>
-                      #{tag}
-                    </span>
-                  ))}
-                </div>
-
-                <div className="actions">
-                  <button onClick={() => openEdit(s)}>Edit</button>
-                  <button onClick={() => deleteSnippet(s.id)}>Delete</button>
-                </div>
+              <div>
+                {s.title} • {s.language} • {s.type}
               </div>
-            ))}
-          </div>
+
+              <p>{s.description}</p>
+
+              <pre>
+                <code className={`language-${s.language}`}>
+                  {s.code}
+                </code>
+              </pre>
+
+              <div>
+                {(Array.isArray(s.tags) ? s.tags : []).map((t, i) => (
+                  <span key={i}>#{t}</span>
+                ))}
+              </div>
+
+              <button onClick={() => openEdit(s)}>Edit</button>
+              <button onClick={() => deleteSnippet(s.id)}>Delete</button>
+
+            </div>
+          ))}
         </div>
+
       </div>
 
+      {/* CREATE MODAL */}
       {isCreateOpen && (
         <div className="modalOverlay">
           <div className="modal">
-            <h2>Create Snippet</h2>
 
-            <input
-              name="title"
-              placeholder="Title (e.g. Hello World)"
-              onChange={handleChange}
-            />
+            <input name="title" placeholder="Title" onChange={handleChange} />
+            <input name="prefix" placeholder="Prefix" onChange={handleChange} />
 
-            {/* ✅ LANGUAGE DROPDOWN */}
             <select name="language" onChange={handleChange}>
-              <option value="">Select Language</option>
-              <option value="javascript">JavaScript</option>
+              <option value="">Language</option>
+              <option value="javascript">JS</option>
               <option value="html">HTML</option>
               <option value="css">CSS</option>
               <option value="cpp">C++</option>
               <option value="python">Python</option>
-              <option value="java">Java</option>
-              <option value="typescript">TypeScript</option>
-              <option value="global">Global</option>
             </select>
 
-            {/* ✅ PREFIX */}
-            <input
-              name="prefix"
-              placeholder="Prefix (what you type in VS Code, e.g. hw)"
-              onChange={handleChange}
-            />
+            <select name="type" onChange={handleChange}>
+              <option value="snippet">Snippet</option>
+              <option value="template">Template</option>
+            </select>
 
-            <input
-              name="category"
-              placeholder="Category"
-              onChange={handleChange}
-            />
+            <input name="category" placeholder="Category" onChange={handleChange} />
+            <input name="tags" placeholder="Tags" onChange={handleChange} />
 
-            <input
-              name="tags"
-              placeholder="Tags (comma separated)"
-              onChange={handleChange}
-            />
-
-            <textarea
-              name="description"
-              placeholder="Description"
-              onChange={handleChange}
-            />
-
+            <textarea name="description" placeholder="Description" onChange={handleChange} />
             <textarea name="code" placeholder="Code" onChange={handleChange} />
 
             <button onClick={addSnippet}>Create</button>
             <button onClick={() => setIsCreateOpen(false)}>Cancel</button>
+
           </div>
         </div>
       )}
 
-      {isEditOpen && (
+      {/* EDIT MODAL (FIXED) */}
+      {isEditOpen && editingSnippet && (
         <div className="modalOverlay">
           <div className="modal">
-            <h2>Edit Snippet</h2>
 
             <input
-              name="title"
-              value={editingSnippet?.title || ""}
-              onChange={handleEditChange}
-            />
-
-            {/* ✅ SAME LANGUAGE DROPDOWN */}
-            <select
-              name="language"
-              value={editingSnippet?.language || ""}
-              onChange={handleEditChange}
-            >
-              <option value="">Select Language</option>
-              <option value="javascript">JavaScript</option>
-              <option value="html">HTML</option>
-              <option value="css">CSS</option>
-              <option value="cpp">C++</option>
-              <option value="python">Python</option>
-              <option value="java">Java</option>
-              <option value="typescript">TypeScript</option>
-              <option value="global">Global</option>
-            </select>
-
-            {/* ✅ PREFIX */}
-            <input
-              name="prefix"
-              value={editingSnippet?.prefix || ""}
-              onChange={handleEditChange}
+              value={editingSnippet.title}
+              onChange={(e) =>
+                setEditingSnippet({ ...editingSnippet, title: e.target.value })
+              }
             />
 
             <input
-              name="category"
-              value={editingSnippet?.category || ""}
-              onChange={handleEditChange}
+              value={editingSnippet.prefix}
+              onChange={(e) =>
+                setEditingSnippet({ ...editingSnippet, prefix: e.target.value })
+              }
             />
 
             <input
-              name="tags"
-              value={editingSnippet?.tags || ""}
-              onChange={handleEditChange}
+              value={editingSnippet.language}
+              onChange={(e) =>
+                setEditingSnippet({ ...editingSnippet, language: e.target.value })
+              }
+            />
+
+            <input
+              value={editingSnippet.category}
+              onChange={(e) =>
+                setEditingSnippet({ ...editingSnippet, category: e.target.value })
+              }
+            />
+
+            <input
+              value={editingSnippet.tags}
+              onChange={(e) =>
+                setEditingSnippet({ ...editingSnippet, tags: e.target.value })
+              }
             />
 
             <textarea
-              name="description"
-              value={editingSnippet?.description || ""}
-              onChange={handleEditChange}
+              value={editingSnippet.description}
+              onChange={(e) =>
+                setEditingSnippet({
+                  ...editingSnippet,
+                  description: e.target.value,
+                })
+              }
             />
 
             <textarea
-              name="code"
-              value={editingSnippet?.code || ""}
-              onChange={handleEditChange}
+              value={editingSnippet.code}
+              onChange={(e) =>
+                setEditingSnippet({ ...editingSnippet, code: e.target.value })
+              }
             />
 
             <button onClick={updateSnippet}>Save</button>
             <button onClick={() => setIsEditOpen(false)}>Cancel</button>
+
           </div>
         </div>
       )}
+
     </div>
   );
 }
