@@ -34,5 +34,60 @@
       "iteration"
     ],
     "code": "for (int i = 0; i < 10; i++) {\n  cout << i;\n}"
+  },
+  {
+    "id": 1777098176893,
+    "title": "Hello World",
+    "language": "HTML",
+    "category": "Basics",
+    "description": "Test",
+    "tags": [],
+    "code": "<p>Hello World!</p>",
+    "prefix": "helloworld",
+    "source": "user"
+  },
+  {
+    "id": 1777099807008.3613,
+    "title": "forloop",
+    "language": "cpp",
+    "category": "vscode",
+    "description": "Basic loop structure",
+    "tags": [],
+    "code": "for (int i = 0; i < 10; i++) {\n  cout << i;\n}",
+    "prefix": "forloop",
+    "source": "vscode"
+  },
+  {
+    "id": 1777099807008.7551,
+    "title": "helloworld",
+    "language": "html",
+    "category": "vscode",
+    "description": "Test",
+    "tags": [],
+    "code": "<p>Hello World!</p>",
+    "prefix": "helloworld",
+    "source": "vscode"
+  },
+  {
+    "id": 1777099807009.3008,
+    "title": "consolelog",
+    "language": "javascript",
+    "category": "vscode",
+    "description": "Print output to console",
+    "tags": [],
+    "code": "console.log('Hello World');",
+    "prefix": "consolelog",
+    "source": "vscode"
+  },
+  {
+    "id": 1777099807009.8013,
+    "title": "arraymap",
+    "language": "javascript",
+    "category": "vscode",
+    "description": "Transform array items",
+    "tags": [],
+    "code": "const newArr = arr.map(x => x * 2);",
+    "prefix": "arraymap",
+    "source": "vscode"
   }
 ]
