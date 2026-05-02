@@ -1,0 +1,27 @@
+{
+  "pack": "html-core",
+  "name": "HTML Core Pack",
+  "language": "html",
+  "snippets": [
+    { "title": "HTML Boilerplate", "prefix": "html", "code": "<!DOCTYPE html>\n<html>\n<head></head>\n<body></body>\n</html>", "description": "Base page" },
+    { "title": "Div", "prefix": "div", "code": "<div></div>", "description": "Container" },
+    { "title": "Button", "prefix": "button", "code": "<button>Click</button>", "description": "Button" },
+    { "title": "Input", "prefix": "input", "code": "<input type='text' />", "description": "Input field" },
+    { "title": "Link", "prefix": "a", "code": "<a href='#'></a>", "description": "Anchor" },
+    { "title": "Image", "prefix": "img", "code": "<img src='' alt='' />", "description": "Image" },
+    { "title": "List", "prefix": "ul", "code": "<ul><li></li></ul>", "description": "List" },
+    { "title": "Table", "prefix": "table", "code": "<table></table>", "description": "Table" },
+    { "title": "Form", "prefix": "form", "code": "<form></form>", "description": "Form" },
+    { "title": "Script", "prefix": "script", "code": "<script></script>", "description": "JS script" },
+    { "title": "Style", "prefix": "style", "code": "<style></style>", "description": "CSS block" },
+    { "title": "Meta", "prefix": "meta", "code": "<meta charset='UTF-8'>", "description": "Meta tag" },
+    { "title": "Header", "prefix": "h1", "code": "<h1>Title</h1>", "description": "Header" },
+    { "title": "Paragraph", "prefix": "p", "code": "<p></p>", "description": "Paragraph" },
+    { "title": "Section", "prefix": "section", "code": "<section></section>", "description": "Section" },
+    { "title": "Nav", "prefix": "nav", "code": "<nav></nav>", "description": "Navigation" },
+    { "title": "Footer", "prefix": "footer", "code": "<footer></footer>", "description": "Footer" },
+    { "title": "Span", "prefix": "span", "code": "<span></span>", "description": "Inline text" },
+    { "title": "Break", "prefix": "br", "code": "<br />", "description": "Line break" },
+    { "title": "Head", "prefix": "head", "code": "<head></head>", "description": "Head section" }
+  ]
+}

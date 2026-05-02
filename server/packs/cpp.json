@@ -1,0 +1,27 @@
+{
+  "pack": "cpp-core",
+  "name": "C++ Core Pack",
+  "language": "cpp",
+  "snippets": [
+    { "title": "Hello World", "prefix": "main", "code": "#include <iostream>\nint main() {\n std::cout << \"Hello\";\n}", "description": "Basic program" },
+    { "title": "For Loop", "prefix": "for", "code": "for (int i = 0; i < n; i++) {}", "description": "Loop" },
+    { "title": "While Loop", "prefix": "while", "code": "while (true) {}", "description": "While loop" },
+    { "title": "Function", "prefix": "func", "code": "int add(int a, int b) { return a + b; }", "description": "Function" },
+    { "title": "Class", "prefix": "class", "code": "class A { public: int x; };", "description": "Class" },
+    { "title": "Vector", "prefix": "vec", "code": "#include <vector>\nstd::vector<int> v;", "description": "Vector usage" },
+    { "title": "If Statement", "prefix": "if", "code": "if (x > 0) {}", "description": "Condition" },
+    { "title": "Pointer", "prefix": "ptr", "code": "int* p = &x;", "description": "Pointer" },
+    { "title": "Reference", "prefix": "ref", "code": "int& r = x;", "description": "Reference" },
+    { "title": "Struct", "prefix": "struct", "code": "struct S { int x; };", "description": "Struct" },
+    { "title": "Switch", "prefix": "switch", "code": "switch(x) { case 1: break; }", "description": "Switch case" },
+    { "title": "Input", "prefix": "cin", "code": "std::cin >> x;", "description": "Input" },
+    { "title": "Output", "prefix": "cout", "code": "std::cout << x;", "description": "Output" },
+    { "title": "Array", "prefix": "arr", "code": "int arr[10];", "description": "Array" },
+    { "title": "Loop Vector", "prefix": "forvec", "code": "for (auto v : vec) {}", "description": "Range loop" },
+    { "title": "Include IO", "prefix": "io", "code": "#include <iostream>", "description": "IO header" },
+    { "title": "Const", "prefix": "const", "code": "const int x = 10;", "description": "Constant" },
+    { "title": "Namespace", "prefix": "ns", "code": "using namespace std;", "description": "Namespace" },
+    { "title": "Return", "prefix": "ret", "code": "return 0;", "description": "Return" },
+    { "title": "Template", "prefix": "template", "code": "template <typename T>", "description": "Template" }
+  ]
+}

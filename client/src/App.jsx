@@ -8,13 +8,13 @@ export default function App() {
 
   const [snippets, setSnippets] = useState([]);
   const [search, setSearch] = useState("");
-  const [activeCategory, setActiveCategory] = useState("All");
   const [activeSource, setActiveSource] = useState("all");
+  const [activeLanguage, setActiveLanguage] = useState("all");
+  const [activeType, setActiveType] = useState("all");
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editingSnippet, setEditingSnippet] = useState(null);
-
   const [form, setForm] = useState({
     title: "",
     language: "",
@@ -54,19 +54,19 @@ export default function App() {
   // FORM
   // =====================
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm({ ...form, [name]: value });
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    });
   };
 
-  const normalizeTags = (tags) => {
-    if (!tags) return [];
-    if (Array.isArray(tags)) return tags;
-
-    return tags
-      .split(",")
-      .map((t) => t.trim())
-      .filter(Boolean);
-  };
+  const normalizeTags = (tags) =>
+    tags
+      ? tags
+          .split(",")
+          .map((t) => t.trim())
+          .filter(Boolean)
+      : [];
 
   // =====================
   // CREATE
@@ -78,20 +78,8 @@ export default function App() {
       body: JSON.stringify({
         ...form,
         tags: normalizeTags(form.tags),
-        source: "user",
       }),
     }).then(() => {
-      setForm({
-        title: "",
-        language: "",
-        prefix: "",
-        type: "snippet",
-        category: "",
-        description: "",
-        tags: "",
-        code: "",
-      });
-
       setIsCreateOpen(false);
       loadSnippets();
     });
@@ -107,26 +95,13 @@ export default function App() {
   };
 
   // =====================
-  // EDIT
+  // UPDATE
   // =====================
-  const openEdit = (snippet) => {
-    setEditingSnippet({
-      ...snippet,
-      tags: Array.isArray(snippet.tags)
-        ? snippet.tags.join(", ")
-        : snippet.tags || "",
-    });
-    setIsEditOpen(true);
-  };
-
   const updateSnippet = () => {
     fetch(`${API}/snippets/${editingSnippet.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ...editingSnippet,
-        tags: normalizeTags(editingSnippet.tags),
-      }),
+      body: JSON.stringify(editingSnippet),
     }).then(() => {
       setIsEditOpen(false);
       setEditingSnippet(null);
@@ -135,46 +110,57 @@ export default function App() {
   };
 
   // =====================
-  // FILTERS
+  // FILTERING (STEP 3 FIX)
   // =====================
-  const categories = [
-    "All",
-    ...new Set(snippets.map((s) => s.category).filter(Boolean)),
-  ];
-
-  const filteredSnippets = snippets.filter((s) => {
+  const filtered = snippets.filter((s) => {
     const q = search.toLowerCase();
 
-    return (
-      (s.title?.toLowerCase().includes(q) ||
-        s.language?.toLowerCase().includes(q) ||
-        s.description?.toLowerCase().includes(q) ||
-        s.code?.toLowerCase().includes(q) ||
-        (s.tags || []).some((t) =>
-          t.toLowerCase().includes(q)
-        )) &&
-      (activeCategory === "All" ||
-        s.category === activeCategory) &&
-      (activeSource === "all" ||
-        s.source === activeSource)
-    );
+    const matchesSearch =
+      s.title?.toLowerCase().includes(q) || s.code?.toLowerCase().includes(q);
+
+    const matchesSource =
+      activeSource === "all" || (s.origin || "user") === activeSource;
+
+    const matchesLanguage =
+      activeLanguage === "all" || s.language === activeLanguage;
+
+    const matchesType = activeType === "all" || s.type === activeType;
+
+    return matchesSearch && matchesSource && matchesLanguage && matchesType;
   });
+
+  // =====================
+  // GROUP AFTER FILTER
+  // =====================
+  const groupedSnippets = filtered.reduce((acc, s) => {
+    const key = s.origin || "user";
+
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(s);
+
+    return acc;
+  }, {});
 
   return (
     <div className="app">
-
-      {/* TOP BAR */}
+      {/* TOPBAR */}
       <div className="topbar">
         <h1>Snippet Manager</h1>
 
         <div className="topbar-right">
-          <button onClick={() => fetch(`${API}/vscode/import`).then(loadSnippets)}>
-            Import
+          <button
+            onClick={() => fetch(`${API}/vscode/import`).then(loadSnippets)}
+          >
+            Import VS Code
           </button>
 
-          <button onClick={() => fetch(`${API}/vscode/export`, { method: "POST" })}>
-            Export
+          <button
+            onClick={() => fetch(`${API}/vscode/export`, { method: "POST" })}
+          >
+            Export VS Code
           </button>
+
+          <button onClick={() => setIsCreateOpen(true)}>+ New</button>
 
           <input
             placeholder="Search..."
@@ -185,139 +171,274 @@ export default function App() {
       </div>
 
       <div className="layout">
-
         {/* SIDEBAR */}
         <div className="sidebar">
+          {/* SOURCE FILTER */}
+          <h3>Source</h3>
 
-          <button onClick={() => setIsCreateOpen(true)}>
-            + New
+          <button
+            className={activeSource === "all" ? "active" : ""}
+            onClick={() => setActiveSource("all")}
+          >
+            All
           </button>
 
-          <h3>Source</h3>
-          <button onClick={() => setActiveSource("all")}>All</button>
-          <button onClick={() => setActiveSource("user")}>User</button>
-          <button onClick={() => setActiveSource("vscode")}>VS Code</button>
+          <button
+            className={activeSource === "user" ? "active" : ""}
+            onClick={() => setActiveSource("user")}
+          >
+            User
+          </button>
 
-          <h3>Categories</h3>
-          {categories.map((c) => (
-            <button
-              key={c}
-              onClick={() => setActiveCategory(c)}
-            >
-              {c}
-            </button>
-          ))}
+          <button
+            className={activeSource === "vscode" ? "active" : ""}
+            onClick={() => setActiveSource("vscode")}
+          >
+            VS Code
+          </button>
+
+          <button
+            className={activeSource === "core-pack" ? "active" : ""}
+            onClick={() => setActiveSource("core-pack")}
+          >
+            Core Packs
+          </button>
+
+          {/* LANGUAGE FILTER */}
+          <h3>Language</h3>
+
+          <button
+            className={activeLanguage === "all" ? "active" : ""}
+            onClick={() => setActiveLanguage("all")}
+          >
+            All
+          </button>
+
+          <button
+            className={activeLanguage === "javascript" ? "active" : ""}
+            onClick={() => setActiveLanguage("javascript")}
+          >
+            JavaScript
+          </button>
+
+          <button
+            className={activeLanguage === "html" ? "active" : ""}
+            onClick={() => setActiveLanguage("html")}
+          >
+            HTML
+          </button>
+
+          <button
+            className={activeLanguage === "css" ? "active" : ""}
+            onClick={() => setActiveLanguage("css")}
+          >
+            CSS
+          </button>
+
+          <button
+            className={activeLanguage === "python" ? "active" : ""}
+            onClick={() => setActiveLanguage("python")}
+          >
+            Python
+          </button>
+
+          {/* TYPE FILTER */}
+          <h3>Type</h3>
+
+          <button
+            className={activeType === "all" ? "active" : ""}
+            onClick={() => setActiveType("all")}
+          >
+            All
+          </button>
+
+          <button
+            className={activeType === "snippet" ? "active" : ""}
+            onClick={() => setActiveType("snippet")}
+          >
+            Snippet
+          </button>
+
+          <button
+            className={activeType === "template" ? "active" : ""}
+            onClick={() => setActiveType("template")}
+          >
+            Template
+          </button>
         </div>
 
         {/* CONTENT */}
         <div className="content">
-          {filteredSnippets.map((s) => (
-            <div key={s.id} className="card">
+          {Object.entries(groupedSnippets)
+            .sort(([a], [b]) => {
+              const order = {
+                user: 1,
+                vscode: 2,
+                "core-pack": 3,
+              };
+              return order[a] - order[b];
+            })
+            .filter(([key]) => activeSource === "all" || activeSource === key)
+            .map(([group, items]) => (
+              <div key={group}>
+                {/* GROUP HEADER */}
+                <h2 className="groupHeader">
+                  {group.toUpperCase()} ({items.length})
+                </h2>
 
-              <div>
-                {s.title} • {s.language} • {s.type}
+                <div className="grid">
+                  {items
+                    .filter((s) => {
+                      const q = search.toLowerCase();
+                      return (
+                        s.title?.toLowerCase().includes(q) ||
+                        s.code?.toLowerCase().includes(q)
+                      );
+                    })
+                    .map((s) => (
+                      <div key={s.id} className="card">
+                        {/* META */}
+                        <div className="meta">
+                          <span className="title">
+                            {s.title || "Untitled"}
+                          </span>
+
+                          <span className="language">
+                          {s.language || "unknown"}
+                          </span>
+                          <span className={`source ${s.origin}`}>
+                            {s.origin}
+                          </span>
+
+                          {/* pack badge */}
+                          {s.pack && (
+                            <span className="packBadge">{s.pack}</span>
+                          )}
+
+                          {/* tags */}
+                          {s.tags?.length > 0 && (
+                            <div className="tags">
+                              {s.tags.map((tag, i) => (
+                                <span key={i} className="tag">
+                                  {tag}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* CODE */}
+                        <pre>
+                          <code>{s.code}</code>
+                        </pre>
+
+                        {/* ACTIONS */}
+                        <div className="actions">
+                          <button
+                            disabled={s.origin === "core-pack"}
+                            onClick={() => {
+                              if (s.origin === "core-pack") return;
+                              setEditingSnippet(s);
+                              setIsEditOpen(true);
+                            }}
+                          >
+                            Edit
+                          </button>
+
+                          <button
+                            disabled={s.origin === "core-pack"}
+                            onClick={() => {
+                              if (s.origin === "core-pack") return;
+                              deleteSnippet(s.id);
+                            }}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                </div>
               </div>
-
-              <p>{s.description}</p>
-
-              <pre>
-                <code className={`language-${s.language}`}>
-                  {s.code}
-                </code>
-              </pre>
-
-              <div>
-                {(Array.isArray(s.tags) ? s.tags : []).map((t, i) => (
-                  <span key={i}>#{t}</span>
-                ))}
-              </div>
-
-              <button onClick={() => openEdit(s)}>Edit</button>
-              <button onClick={() => deleteSnippet(s.id)}>Delete</button>
-
-            </div>
-          ))}
+            ))}
         </div>
-
       </div>
 
       {/* CREATE MODAL */}
       {isCreateOpen && (
         <div className="modalOverlay">
           <div className="modal">
-
             <input name="title" placeholder="Title" onChange={handleChange} />
             <input name="prefix" placeholder="Prefix" onChange={handleChange} />
-
-            <select name="language" onChange={handleChange}>
-              <option value="">Language</option>
-              <option value="javascript">JS</option>
-              <option value="html">HTML</option>
-              <option value="css">CSS</option>
-              <option value="cpp">C++</option>
-              <option value="python">Python</option>
-            </select>
-
-            <select name="type" onChange={handleChange}>
-              <option value="snippet">Snippet</option>
-              <option value="template">Template</option>
-            </select>
-
-            <input name="category" placeholder="Category" onChange={handleChange} />
+            <input
+              name="language"
+              placeholder="Language"
+              onChange={handleChange}
+            />
+            <input
+              name="category"
+              placeholder="Category"
+              onChange={handleChange}
+            />
             <input name="tags" placeholder="Tags" onChange={handleChange} />
 
-            <textarea name="description" placeholder="Description" onChange={handleChange} />
+            <textarea
+              name="description"
+              placeholder="Description"
+              onChange={handleChange}
+            />
             <textarea name="code" placeholder="Code" onChange={handleChange} />
 
             <button onClick={addSnippet}>Create</button>
             <button onClick={() => setIsCreateOpen(false)}>Cancel</button>
-
           </div>
         </div>
       )}
 
-      {/* EDIT MODAL (FIXED) */}
+      {/* EDIT MODAL */}
       {isEditOpen && editingSnippet && (
         <div className="modalOverlay">
           <div className="modal">
-
             <input
               value={editingSnippet.title}
+              placeholder="Title"
               onChange={(e) =>
                 setEditingSnippet({ ...editingSnippet, title: e.target.value })
               }
             />
 
             <input
-              value={editingSnippet.prefix}
+              value={editingSnippet.prefix || ""}
+              placeholder="Prefix (VS Code trigger)"
               onChange={(e) =>
                 setEditingSnippet({ ...editingSnippet, prefix: e.target.value })
               }
             />
 
             <input
-              value={editingSnippet.language}
+              value={editingSnippet.language || ""}
+              placeholder="Language"
               onChange={(e) =>
-                setEditingSnippet({ ...editingSnippet, language: e.target.value })
+                setEditingSnippet({
+                  ...editingSnippet,
+                  language: e.target.value,
+                })
               }
             />
 
             <input
-              value={editingSnippet.category}
+              value={editingSnippet.category || ""}
+              placeholder="Category"
               onChange={(e) =>
-                setEditingSnippet({ ...editingSnippet, category: e.target.value })
-              }
-            />
-
-            <input
-              value={editingSnippet.tags}
-              onChange={(e) =>
-                setEditingSnippet({ ...editingSnippet, tags: e.target.value })
+                setEditingSnippet({
+                  ...editingSnippet,
+                  category: e.target.value,
+                })
               }
             />
 
             <textarea
-              value={editingSnippet.description}
+              value={editingSnippet.description || ""}
+              placeholder="Description"
               onChange={(e) =>
                 setEditingSnippet({
                   ...editingSnippet,
@@ -328,6 +449,7 @@ export default function App() {
 
             <textarea
               value={editingSnippet.code}
+              placeholder="Code"
               onChange={(e) =>
                 setEditingSnippet({ ...editingSnippet, code: e.target.value })
               }
@@ -335,11 +457,9 @@ export default function App() {
 
             <button onClick={updateSnippet}>Save</button>
             <button onClick={() => setIsEditOpen(false)}>Cancel</button>
-
           </div>
         </div>
       )}
-
     </div>
   );
 }

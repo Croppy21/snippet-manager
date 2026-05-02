@@ -1,0 +1,27 @@
+{
+  "pack": "python-core",
+  "name": "Python Core Pack",
+  "language": "python",
+  "snippets": [
+    { "title": "For Loop", "prefix": "for", "code": "for i in range(10):", "description": "Basic loop" },
+    { "title": "While Loop", "prefix": "while", "code": "while True:", "description": "While loop" },
+    { "title": "Function", "prefix": "def", "code": "def func():\n    pass", "description": "Function definition" },
+    { "title": "Class", "prefix": "class", "code": "class MyClass:\n    def __init__(self):\n        pass", "description": "Class template" },
+    { "title": "If Statement", "prefix": "if", "code": "if condition:\n    pass", "description": "If statement" },
+    { "title": "Try Except", "prefix": "try", "code": "try:\n    pass\nexcept Exception as e:\n    print(e)", "description": "Error handling" },
+    { "title": "List Comprehension", "prefix": "listcomp", "code": "[x for x in range(10)]", "description": "List comprehension" },
+    { "title": "Dictionary", "prefix": "dict", "code": "{'key': 'value'}", "description": "Dict creation" },
+    { "title": "Lambda", "prefix": "lambda", "code": "lambda x: x + 1", "description": "Anonymous function" },
+    { "title": "Print", "prefix": "print", "code": "print('hello')", "description": "Print output" },
+    { "title": "Open File", "prefix": "open", "code": "with open('file.txt') as f:\n    data = f.read()", "description": "File reading" },
+    { "title": "Write File", "prefix": "write", "code": "with open('file.txt', 'w') as f:\n    f.write('data')", "description": "File writing" },
+    { "title": "Import", "prefix": "import", "code": "import os", "description": "Module import" },
+    { "title": "Random", "prefix": "random", "code": "import random\nrandom.randint(1,10)", "description": "Random number" },
+    { "title": "JSON Load", "prefix": "jsonload", "code": "import json\njson.loads(data)", "description": "Parse JSON" },
+    { "title": "JSON Dump", "prefix": "jsondump", "code": "json.dumps(data)", "description": "Serialize JSON" },
+    { "title": "Range Loop", "prefix": "range", "code": "for i in range(10):", "description": "Range iteration" },
+    { "title": "Map", "prefix": "map", "code": "list(map(str, arr))", "description": "Map function" },
+    { "title": "Filter", "prefix": "filter", "code": "list(filter(lambda x: x>0, arr))", "description": "Filter list" },
+    { "title": "Main Guard", "prefix": "main", "code": "if __name__ == '__main__':", "description": "Entry point" }
+  ]
+}

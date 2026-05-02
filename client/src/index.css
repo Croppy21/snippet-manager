@@ -11,7 +11,9 @@
   --shadow: rgba(0, 0, 0, 0.08) 0 10px 30px;
 
   --mono: ui-monospace, Consolas, monospace;
-  font: 16px system-ui, sans-serif;
+  font:
+    16px system-ui,
+    sans-serif;
 }
 
 body {
@@ -65,6 +67,7 @@ body {
 .content {
   flex: 1;
   padding: 20px;
+  display: block;
 }
 
 /* GRID */
@@ -72,6 +75,7 @@ body {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 16px;
+  align-items: start;
 }
 
 /* CARD */
@@ -81,14 +85,44 @@ body {
   border-radius: 10px;
   padding: 14px;
   box-shadow: var(--shadow);
+
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
-/* META */
 .meta {
-  font-size: 12px;
-  opacity: 0.7;
-  margin-bottom: 6px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
 }
+
+.language {
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: #1f2937;
+  color: #e5e7eb;
+}
+
+.language.javascript {
+  background: #f7df1e;
+  color: #000;
+}
+.language.python {
+  background: #ff00d0;
+  color: white;
+}
+.language.html {
+  background: #e34c26;
+  color: white;
+}
+.language.cpp {
+  background: #264de4;
+  color: white;
+}
+
 
 /* DESCRIPTION */
 .desc {
@@ -141,28 +175,33 @@ pre code {
 ========================= */
 
 .actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 10px;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: 0.15s ease;
+}
+
+.card:hover .actions {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.editBtn,
+.deleteBtn {
+  flex: 1;
+  padding: 4px 6px;
+  font-size: 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
 }
 
 .editBtn {
-  flex: 1;
-  padding: 6px;
-  border: none;
-  border-radius: 6px;
   background: #ffe100;
-  cursor: pointer;
 }
 
 .deleteBtn {
-  flex: 1;
-  padding: 6px;
-  border: none;
-  border-radius: 6px;
   background: #ef4444;
   color: white;
-  cursor: pointer;
 }
 
 /* =========================
@@ -217,7 +256,7 @@ pre code {
 .modalOverlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -296,6 +335,47 @@ pre code {
 }
 
 .source.vscode {
-  background: #f59e0b;
+  background: #ffa200;
   color: white;
+}
+
+.source.core-pack {
+  background: #3b82f6;
+  color: white;
+}
+
+.coreBadge {
+  margin-left: 8px;
+  padding: 2px 6px;
+  font-size: 10px;
+  background: #ff0000;
+  color: rgb(255, 255, 255);
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.sidebar button {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 6px;
+  background: transparent;
+  border: 1px solid #333;
+  color: #ccc;
+  cursor: pointer;
+  border-radius: 6px;
+  text-align: left;
+  transition: 0.2s;
+}
+
+.sidebar button:hover {
+  background: #222;
+  color: white;
+}
+
+/* ACTIVE STATE */
+.sidebar button.active {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+  font-weight: bold;
 }
